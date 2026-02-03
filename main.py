@@ -11,9 +11,9 @@ url = os.getenv("BASE_URL")
 
 def search_icd10_codes(symptom):
     params = {
-        "sf": "code,name",     # fields to return
-        "terms": symptom,       # search term
-        "maxList": 10            # maximum number of results to return (changed from 1 to 10)
+        "sf": "code,name",
+        "terms": symptom,
+        "maxList": 10
     }
 
     response = requests.get(url, params=params)
@@ -28,9 +28,9 @@ def generate_description(code, name):
     )
     
     response = openai.chat.completions.create(
-        model="gpt-4.1",  # Using valid model name
+        model="gpt-4.1",
         messages=[{"role": "user", "content": prompt}],
-        max_completion_tokens=100,  # Adjusted to a reasonable length for explanations
+        max_completion_tokens=100,
         temperature=0
     )
     
@@ -52,7 +52,7 @@ def icd_to_cpt(icd_code, diagnosis):
     )
 
     response = openai.chat.completions.create(
-        model="gpt-4.1",  # Using valid model name
+        model="gpt-4.1",
         messages=[{"role": "user", "content": prompt}],
         temperature=0 
     )
@@ -60,24 +60,11 @@ def icd_to_cpt(icd_code, diagnosis):
     return response.choices[0].message.content.strip()
 
 def get_cpt_prices_from_model(cpt_code, zip_code):
-    """
-    Get CPT code prices from the OpenAI model.
-    
-    Args:
-        cpt_code (str): The CPT code to get prices for.
-        
-    Returns:
-        dict: A dictionary containing in-network and out-of-network prices.
-    """
-    
-    # Define the prompt for the model
-
     system_prompt = (
         "You are an expert in medical coding and billing. "
         "Your job is to provide accurate pricing for CPT codes based on a given zip code in the US. "
         "You always respond in a precise JSON format without ranges or explanations."
     )
-
 
     user_prompt = (
         f"Provide the in-network and out-of-network prices for CPT code {cpt_code} "
@@ -90,7 +77,6 @@ def get_cpt_prices_from_model(cpt_code, zip_code):
         "Provide realistic prices in USD format with dollar signs."
     )
 
-    # Call the OpenAI API to get the prices
     response = openai.chat.completions.create(
         model="gpt-4.1",
         messages=[
@@ -100,13 +86,10 @@ def get_cpt_prices_from_model(cpt_code, zip_code):
         temperature=0
     )
 
-    # Extract the content from the response
     content = response.choices[0].message.content.strip()
     
-    # Parse the JSON content to extract prices
     try:
         parsed_response = json.loads(content)
-        # Debug: print the actual response structure
         print(f"    Debug - Raw response for {cpt_code}: {parsed_response}")
         return parsed_response
     except json.JSONDecodeError as e:
@@ -118,47 +101,19 @@ def get_cpt_prices_from_model(cpt_code, zip_code):
         }
 
 def parse_price(price_str):
-    """
-    Parse price string and return numeric value
-    
-    Args:
-        price_str (str): Price string like "$1,234" or "undefined"
-    
-    Returns:
-        float: Numeric price value or None if undefined
-    """
     if price_str == "undefined" or not price_str:
         return None
     
-    # Remove $ and commas, then convert to float
     try:
         return float(price_str.replace("$", "").replace(",", ""))
     except (ValueError, AttributeError):
         return None
 
 def is_valid_zip(zip_code):
-    """
-    Check if the provided zip code is valid (5 digits).
-    
-    Args:
-        zip_code (str): The zip code to validate.
-        
-    Returns:
-        bool: True if valid, False otherwise.
-    """
     res = requests.get(f"https://api.zippopotam.us/us/{zip_code}")
     return res.status_code == 200
 
 def get_icd10_codes_with_descriptions(symptom):
-    """
-    Get ICD-10 codes for a symptom with AI-generated descriptions.
-    
-    Args:
-        symptom (str): The symptom to search for
-        
-    Returns:
-        list: List of dictionaries containing code, name, and description
-    """
     matches = search_icd10_codes(symptom)
     if not matches:
         return []
@@ -183,16 +138,6 @@ def get_icd10_codes_with_descriptions(symptom):
     return results
 
 def get_cpt_codes_for_diagnosis(icd_code, diagnosis_name):
-    """
-    Get CPT codes for a given ICD-10 diagnosis.
-    
-    Args:
-        icd_code (str): The ICD-10 code
-        diagnosis_name (str): The diagnosis name
-        
-    Returns:
-        dict: Parsed JSON containing diagnosis and CPT categories, or None if error
-    """
     try:
         cpt_codes_json = icd_to_cpt(icd_code, diagnosis_name)
         return json.loads(cpt_codes_json)
@@ -201,16 +146,6 @@ def get_cpt_codes_for_diagnosis(icd_code, diagnosis_name):
         return None
 
 def calculate_cost_analysis(cpt_categories, zip_code):
-    """
-    Calculate comprehensive cost analysis for CPT categories.
-    
-    Args:
-        cpt_categories (list): List of CPT categories from get_cpt_codes_for_diagnosis
-        zip_code (str): Valid zip code for pricing
-        
-    Returns:
-        dict: Comprehensive cost analysis including category and overall ranges
-    """
     if not is_valid_zip(zip_code):
         raise ValueError("Invalid zip code provided")
     
@@ -226,7 +161,6 @@ def calculate_cost_analysis(cpt_categories, zip_code):
             try:
                 costs = get_cpt_prices_from_model(cpt_code, zip_code)
                 
-                # Handle different possible key names
                 in_network_key = 'in_network_price' if 'in_network_price' in costs else 'in-network_price'
                 out_network_key = 'out_of_network_price' if 'out_of_network_price' in costs else 'out-network_price'
                 
@@ -261,7 +195,6 @@ def calculate_cost_analysis(cpt_categories, zip_code):
                     "error": str(e)
                 })
         
-        # Calculate category ranges
         category_in_range = None
         category_out_range = None
         
@@ -284,7 +217,6 @@ def calculate_cost_analysis(cpt_categories, zip_code):
             'out_network_range': category_out_range
         })
     
-    # Calculate overall ranges
     in_network_ranges = [cat['in_network_range'] for cat in category_results if cat['in_network_range'] is not None]
     out_network_ranges = [cat['out_network_range'] for cat in category_results if cat['out_network_range'] is not None]
     
@@ -313,34 +245,19 @@ def calculate_cost_analysis(cpt_categories, zip_code):
     }
 
 def get_complete_cost_analysis(symptom, icd_selection_index, zip_code):
-    """
-    Complete end-to-end cost analysis for a symptom.
-    
-    Args:
-        symptom (str): The symptom to analyze
-        icd_selection_index (int): Index of the ICD-10 code to select (0-based)
-        zip_code (str): Valid zip code for pricing
-        
-    Returns:
-        dict: Complete analysis including ICD codes, CPT codes, and cost analysis
-    """
-    # Step 1: Get ICD-10 codes
     icd_codes = get_icd10_codes_with_descriptions(symptom)
     if not icd_codes:
         return {"error": "No matching ICD-10 codes found for the symptom"}
     
-    # Step 2: Validate selection
     if icd_selection_index < 0 or icd_selection_index >= len(icd_codes):
         return {"error": f"Invalid selection index. Must be between 0 and {len(icd_codes)-1}"}
     
     selected_icd = icd_codes[icd_selection_index]
     
-    # Step 3: Get CPT codes
     cpt_data = get_cpt_codes_for_diagnosis(selected_icd['code'], selected_icd['name'])
     if not cpt_data:
         return {"error": "Failed to get CPT codes for the selected diagnosis"}
     
-    # Step 4: Calculate costs
     try:
         cost_analysis = calculate_cost_analysis(cpt_data['CPT_categories'], zip_code)
     except ValueError as e:
@@ -356,39 +273,26 @@ def get_complete_cost_analysis(symptom, icd_selection_index, zip_code):
         "cost_analysis": cost_analysis
     }
 
-# chatbot where user can interact with a openai model to ask general medical questions (function will take in the user query and output the chatboyt response)
 def chatbot(query):
-    """
-    Interact with OpenAI model to answer general medical questions.
-    
-    Args:
-        query (str): User's question or query
-        
-    Returns:
-        str: Response from the OpenAI model
-    """
     system_prompt = (f"You are a medical expert. Answer the user's question in a clear and concise manner, "
                      "providing accurate medical information without unnecessary jargon.")
 
     
     response = openai.chat.completions.create(
-        model="gpt-4.1",  # Using valid model name
+        model="gpt-4.1",
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": query}
         ],
-        max_completion_tokens=200,  # Adjusted for more detailed responses
-        temperature=0.5  # Slightly higher temperature for more varied responses
+        max_completion_tokens=200,
+        temperature=0.5
     )
     
     return response.choices[0].message.content.strip()
 
-# Example usage for testing
 if __name__ == "__main__":
-    # Interactive mode for testing
     symptom = input("Enter a symptom: ")
     
-    # Get ICD codes
     icd_codes = get_icd10_codes_with_descriptions(symptom)
     if not icd_codes:
         print("No matching ICD-10 codes found.")
@@ -399,7 +303,6 @@ if __name__ == "__main__":
         print(f"{i+1}. {icd['code']}: {icd['name']}")
         print(f"   → {icd['description']}\n")
     
-    # Get user selection
     while True:
         try:
             choice = int(input(f"Select a code (1-{len(icd_codes)}): "))
@@ -411,13 +314,11 @@ if __name__ == "__main__":
         except ValueError:
             print("Please enter a valid number")
     
-    # Get zip code
     zip_code = input("Enter your zip code for cost lookup: ")
     while not is_valid_zip(zip_code):
         print("Invalid zip code. Please enter a valid 5-digit zip code.")
         zip_code = input("Enter your zip code for cost lookup: ")
     
-    # Get complete analysis
     result = get_complete_cost_analysis(symptom, selection_index, zip_code)
     
     if "error" in result:
@@ -428,7 +329,6 @@ if __name__ == "__main__":
         
         cost_analysis = result['cost_analysis']
         
-        # Display category results
         for category in cost_analysis['categories']:
             print(f"Category: {category['category']}")
             
@@ -444,7 +344,6 @@ if __name__ == "__main__":
             
             print("-" * 30)
         
-        # Display overall summary
         print("OVERALL COST SUMMARY:")
         print("=" * 50)
         

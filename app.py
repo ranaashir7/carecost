@@ -15,12 +15,10 @@ app.secret_key = os.getenv('SECRET_KEY', 'your-secret-key-here')
 
 @app.route('/')
 def index():
-    """Main page with symptom input form"""
     return render_template('index.html')
 
 @app.route('/api/search-icd', methods=['POST'])
 def search_icd_codes():
-    """API endpoint to search for ICD-10 codes based on symptom"""
     try:
         data = request.get_json()
         symptom = data.get('symptom', '').strip()
@@ -28,7 +26,6 @@ def search_icd_codes():
         if not symptom:
             return jsonify({'error': 'Symptom is required'}), 400
         
-        # Get ICD codes with descriptions
         icd_codes = get_icd10_codes_with_descriptions(symptom)
         
         if not icd_codes:
@@ -45,7 +42,6 @@ def search_icd_codes():
 
 @app.route('/api/validate-zip', methods=['POST'])
 def validate_zip_code():
-    """API endpoint to validate zip code"""
     try:
         data = request.get_json()
         zip_code = data.get('zip_code', '').strip()
@@ -65,14 +61,12 @@ def validate_zip_code():
 
 @app.route('/api/analyze-costs', methods=['POST'])
 def analyze_costs():
-    """API endpoint to perform complete cost analysis"""
     try:
         data = request.get_json()
         symptom = data.get('symptom', '').strip()
         icd_selection_index = data.get('icd_selection_index')
         zip_code = data.get('zip_code', '').strip()
         
-        # Validate inputs
         if not symptom:
             return jsonify({'error': 'Symptom is required'}), 400
         
@@ -82,7 +76,6 @@ def analyze_costs():
         if not zip_code:
             return jsonify({'error': 'Zip code is required'}), 400
         
-        # Perform analysis
         result = get_complete_cost_analysis(symptom, icd_selection_index, zip_code)
         
         if 'error' in result:
@@ -98,12 +91,10 @@ def analyze_costs():
 
 @app.route('/results')
 def results():
-    """Results page template"""
     return render_template('results.html')
 
 @app.route('/api/chatbot', methods=['POST'])
 def chatbot_api():
-    """API endpoint for chatbot interactions"""
     try:
         data = request.get_json()
         query = data.get('query', '').strip()
@@ -111,7 +102,6 @@ def chatbot_api():
         if not query:
             return jsonify({'error': 'Query is required'}), 400
         
-        # Get chatbot response
         response = chatbot(query)
         
         return jsonify({
@@ -125,12 +115,10 @@ def chatbot_api():
 
 @app.route('/chatbot')
 def chatbot_page():
-    """Chatbot page template"""
     return render_template('chatbot.html')
 
 @app.route('/feedback')
 def feedback_page():
-    """Feedback page template"""
     return render_template('feedback.html')
 
 if __name__ == '__main__':
