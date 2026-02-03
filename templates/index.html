@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}CareCost+ - Healthcare Cost Estimator{% endblock %}
+
+{% block content %}
+<div class="hero-section">
+    <div class="container">
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1 class="hero-title">
+                    Understand Your <span class="highlight">Healthcare Costs</span>
+                </h1>
+                <p class="hero-subtitle">
+                    Get accurate cost estimates for medical procedures based on your symptoms and location. 
+                    Make informed healthcare decisions with transparent pricing.
+                </p>
+                <div class="hero-features">
+                    <div class="feature-item">
+                        <i class="fas fa-search"></i>
+                        <span>Symptom Analysis</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-clipboard-list"></i>
+                        <span>ICD-10 Codes</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-dollar-sign"></i>
+                        <span>Cost Estimates</span>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-form">
+                <div class="form-card">
+                    <h2>Start Your Cost Analysis</h2>
+                    <form id="symptomForm" class="symptom-form">
+                        <div class="form-group">
+                            <label for="symptom">Describe your symptom</label>
+                            <div class="input-group">
+                                <i class="fas fa-stethoscope"></i>
+                                <input 
+                                    type="text" 
+                                    id="symptom" 
+                                    name="symptom" 
+                                    placeholder="e.g., chest pain, headache, fever"
+                                    required
+                                    autocomplete="off"
+                                >
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i>
+                            Search ICD Codes
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ICD Codes Section -->
+<div id="icdSection" class="section hidden">
+    <div class="container">
+        <div class="section-header">
+            <h2>Select Matching Condition</h2>
+            <p>Choose the condition that best matches your symptom</p>
+        </div>
+        <div id="icdResults" class="icd-results"></div>
+    </div>
+</div>
+
+<!-- Zip Code Section -->
+<div id="zipSection" class="section hidden">
+    <div class="container">
+        <div class="section-header">
+            <h2>Enter Your Location</h2>
+            <p>We need your zip code to provide accurate cost estimates for your area</p>
+        </div>
+        <div class="zip-form-container">
+            <form id="zipForm" class="zip-form">
+                <div class="form-group">
+                    <label for="zipCode">ZIP Code</label>
+                    <div class="input-group">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <input 
+                            type="text" 
+                            id="zipCode" 
+                            name="zipCode" 
+                            placeholder="12345"
+                            pattern="[0-9]{5}"
+                            maxlength="5"
+                            required
+                        >
+                    </div>
+                    <div id="zipValidation" class="validation-message"></div>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-calculator"></i>
+                    Calculate Costs
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Results Section -->
+<div id="resultsSection" class="section hidden">
+    <div class="container">
+        <div class="section-header">
+            <h2>Cost Analysis Results</h2>
+            <p>Estimated costs for your selected condition in your area</p>
+        </div>
+        <div id="costResults" class="cost-results"></div>
+    </div>
+</div>
+
+<!-- About Section -->
+<div id="about" class="about-section">
+    <div class="container">
+        <div class="about-content">
+            <h2>How It Works</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Describe Symptoms</h3>
+                    <p>Enter your symptoms in simple terms</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Match Condition</h3>
+                    <p>Select from relevant ICD-10 medical codes</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>Get Estimates</h3>
+                    <p>View cost ranges for your location</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/index.js') }}"></script>
+{% endblock %}

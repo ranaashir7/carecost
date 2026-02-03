@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+
+{% block title %}Feedback - CareCost+{% endblock %}
+
+{% block content %}
+<div class="main-content">
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="section-header">
+                <h1>Share Your <span class="highlight">Feedback</span></h1>
+                <p>Help us improve CareCost+ with your valuable feedback and suggestions</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Feedback Section -->
+    <section class="section">
+        <div class="container">
+            <div class="feedback-container">
+                <!-- Option 1: Embedded Google Form -->
+                <div class="embedded-form">
+                    <h2>We Value Your Opinion</h2>
+                    <p>Your feedback helps us make CareCost+ better for everyone. Please take a moment to share your thoughts.</p>
+                    
+                    <!-- Replace YOUR_GOOGLE_FORM_EMBED_URL with your actual Google Form embed URL -->
+                    <div class="form-embed">
+                        <iframe 
+                            src="https://docs.google.com/forms/d/e/1FAIpQLSf3XR-ztc9BvX2vb06QgNsZsDrb_BTWm_U5a7Jyp73-T4ki1g/viewform?embedded=true" 
+                            width="100%" 
+                            height="850" 
+                            frameborder="0" 
+                            marginheight="0" 
+                            marginwidth="0">
+                            Loading…
+                        </iframe>
+                    </div>
+                </div>
+
+                <!-- Option 2: Link to Google Form -->
+                <div class="form-link-section">
+                    <div class="form-card">
+                        <div class="feedback-icon">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                        <h3>Quick Feedback</h3>
+                        <p>Prefer to open the form in a new tab? Click the button below.</p>
+                        <a href="https://forms.gle/Ysbb6FEkpmMJMBqj6" target="_blank" class="btn btn-primary">
+                            <i class="fas fa-external-link-alt"></i>
+                            Open Feedback Form
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Feedback Stats/Info -->
+                <div class="feedback-info">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <h4>Quick & Easy</h4>
+                            <p>Takes only 2-3 minutes to complete</p>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <h4>Anonymous</h4>
+                            <p>Your feedback is completely anonymous</p>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-icon">
+                                <i class="fas fa-lightbulb"></i>
+                            </div>
+                            <h4>Impactful</h4>
+                            <p>Your suggestions drive our improvements</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<style>
+/* Additional styles for feedback page */
+.feedback-container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.embedded-form {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid transparent;
+    background: linear-gradient(white, white) padding-box, var(--primary-gradient) border-box;
+}
+
+.embedded-form h2 {
+    text-align: center;
+    margin-bottom: 1rem;
+    font-size: 1.75rem;
+}
+
+.embedded-form p {
+    text-align: center;
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+}
+
+.form-embed {
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+}
+
+.form-link-section {
+    margin-bottom: 2rem;
+}
+
+.form-link-section .form-card {
+    text-align: center;
+    padding: 2rem;
+}
+
+.feedback-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 1.5rem;
+    background: var(--primary-gradient);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: var(--white);
+}
+
+.form-link-section h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.form-link-section p {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+}
+
+.feedback-info {
+    background: var(--secondary-color);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+}
+
+.info-item {
+    text-align: center;
+}
+
+.info-icon {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 1rem;
+    background: var(--primary-gradient);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: var(--white);
+}
+
+.info-item h4 {
+    font-size: 1.125rem;
+    margin-bottom: 0.5rem;
+}
+
+.info-item p {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+@media (max-width: 768px) {
+    .embedded-form {
+        padding: 1rem;
+    }
+    
+    .form-embed iframe {
+        height: 800px;
+    }
+    
+    .info-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+}
+</style>
+{% endblock %}

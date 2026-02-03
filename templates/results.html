@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Cost Analysis Results - CareCost+{% endblock %}
+
+{% block content %}
+<div class="section">
+    <div class="container">
+        <div class="section-header">
+            <h1>Your Healthcare Cost Analysis</h1>
+            <p>Detailed cost breakdown for your selected condition</p>
+        </div>
+        
+        <div class="results-container">
+            <div id="resultsDisplay" class="cost-results">
+                <!-- Results will be populated here -->
+            </div>
+            
+            <div class="actions">
+                <a href="{{ url_for('index') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i>
+                    Start New Search
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// This page can be used for dedicated results display if needed
+document.addEventListener('DOMContentLoaded', function() {
+    // Any results-specific functionality
+});
+</script>
+{% endblock %}

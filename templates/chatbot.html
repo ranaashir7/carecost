@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block title %}Medical Chatbot - CareCost+{% endblock %}
+
+{% block content %}
+<div class="main-content">
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="section-header">
+                <h1>Medical <span class="highlight">Chatbot</span></h1>
+                <p>Ask me any general medical questions and get expert answers</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Chatbot Section -->
+    <section class="section">
+        <div class="container">
+            <div class="chatbot-container">
+                <!-- Chat Messages Area -->
+                <div class="chat-messages" id="chatMessages">
+                    <div class="welcome-message">
+                        <div class="bot-message">
+                            <div class="message-avatar">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="message-content">
+                                <p>Hello! I'm your medical assistant. I can help answer general medical questions, explain symptoms, and provide health information. What would you like to know?</p>
+                                <small class="message-time">Just now</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chat Input -->
+                <div class="chat-input-container">
+                    <form id="chatForm" class="chat-form">
+                        <div class="chat-input-wrapper">
+                            <input type="text" id="chatInput" placeholder="Ask me a medical question..." autocomplete="off" required>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Disclaimer -->
+                <div class="disclaimer">
+                    <p><strong>Disclaimer:</strong> This chatbot provides general medical information for educational purposes only. It is not a substitute for professional medical advice, diagnosis, or treatment. Always consult with a qualified healthcare provider for medical concerns.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const chatForm = document.getElementById('chatForm');
+    const chatInput = document.getElementById('chatInput');
+    const chatMessages = document.getElementById('chatMessages');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+
+    // Auto-scroll to bottom of chat
+    function scrollToBottom() {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // Add user message to chat
+    function addUserMessage(message) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'user-message';
+        messageDiv.innerHTML = `
+            <div class="message-content">
+                <p>${message}</p>
+                <small class="message-time">Just now</small>
+            </div>
+            <div class="message-avatar">
+                <i class="fas fa-user"></i>
+            </div>
+        `;
+        chatMessages.appendChild(messageDiv);
+        scrollToBottom();
+    }
+
+    // Add bot message to chat
+    function addBotMessage(message) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'bot-message';
+        messageDiv.innerHTML = `
+            <div class="message-avatar">
+                <i class="fas fa-robot"></i>
+            </div>
+            <div class="message-content">
+                <p class="streaming-text">${message}</p>
+                <small class="message-time">Just now</small>
+            </div>
+        `;
+        chatMessages.appendChild(messageDiv);
+        scrollToBottom();
+    }
+
+    // Handle form submission
+    chatForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const query = chatInput.value.trim();
+        if (!query) return;
+
+        // Add user message to chat
+        addUserMessage(query);
+        
+        // Clear input and disable form
+        chatInput.value = '';
+        chatInput.disabled = true;
+        chatForm.querySelector('button').disabled = true;
+        
+        // Show loading
+        loadingOverlay.classList.add('show');
+
+        try {
+            const response = await fetch('/api/chatbot', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ query: query })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Add bot response to chat
+                addBotMessage(data.response);
+            } else {
+                addBotMessage('Sorry, I encountered an error while processing your question. Please try again.');
+                console.error('Chatbot error:', data.error);
+            }
+        } catch (error) {
+            console.error('Network error:', error);
+            addBotMessage('Sorry, I\'m having trouble connecting right now. Please check your internet connection and try again.');
+        } finally {
+            // Hide loading and re-enable form
+            loadingOverlay.classList.remove('show');
+            chatInput.disabled = false;
+            chatForm.querySelector('button').disabled = false;
+            chatInput.focus();
+        }
+    });
+
+    // Focus on input when page loads
+    chatInput.focus();
+});
+</script>
+{% endblock %}

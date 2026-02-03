@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}CareCost+{% endblock %}</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png') }}">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="CareCost+ Logo" class="nav-logo">
+            </div>
+            <div class="nav-links">
+                <a href="{{ url_for('index') }}" class="nav-link">Home</a>
+                <a href="{{ url_for('feedback_page') }}" class="nav-link">Feedback</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 CareCost+</p>
+        </div>
+    </footer>
+
+    <!-- Loading overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner">
+            <i class="fas fa-circle-notch fa-spin"></i>
+            <p>Processing your request...</p>
+        </div>
+    </div>
+
+    <!-- Floating Doctor+ Chat Window -->
+    <div id="doctorPlusChat" class="doctor-plus-chat">
+        <div class="doctor-plus-header">
+            <div class="doctor-plus-title">
+                <i class="fas fa-user-md"></i>
+                <span>Doctor+</span>
+            </div>
+            <div class="doctor-plus-controls">
+                <button id="minimizeChat" class="doctor-plus-btn">
+                    <i class="fas fa-minus"></i>
+                </button>
+                <button id="closeChat" class="doctor-plus-btn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="doctor-plus-body" id="doctorPlusBody">
+            <div class="doctor-plus-messages" id="doctorPlusMessages">
+                <div class="welcome-message">
+                    <div class="bot-message">
+                        <div class="message-avatar">
+                            <i class="fas fa-user-md"></i>
+                        </div>
+                        <div class="message-content">
+                            <p>Hello! I'm Doctor+, your medical assistant. I can help answer general medical questions, explain symptoms, and provide health information. What would you like to know?</p>
+                            <small class="message-time">Just now</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="doctor-plus-input-container">
+                <form id="doctorPlusForm" class="doctor-plus-form">
+                    <div class="doctor-plus-input-wrapper">
+                        <input type="text" id="doctorPlusInput" placeholder="Ask me a medical question..." autocomplete="off" required>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="disclaimer">
+                <p><strong>Disclaimer:</strong> This chatbot provides general medical information for educational purposes only. It is not a substitute for professional medical advice, diagnosis, or treatment. Always consult with a qualified healthcare provider for medical concerns.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Doctor+ Button -->
+    <div class="floating-doctor-plus">
+        <button id="openDoctorPlus" class="doctor-plus-toggle-btn">
+            <i class="fas fa-user-md"></i>
+            <span>Doctor+</span>
+        </button>
+    </div>
+
+    <!-- Custom JavaScript -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        // Doctor+ Chat Functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const doctorPlusChat = document.getElementById('doctorPlusChat');
+            const openDoctorPlus = document.getElementById('openDoctorPlus');
+            const closeChat = document.getElementById('closeChat');
+            const minimizeChat = document.getElementById('minimizeChat');
+            const doctorPlusForm = document.getElementById('doctorPlusForm');
+            const doctorPlusInput = document.getElementById('doctorPlusInput');
+            const doctorPlusMessages = document.getElementById('doctorPlusMessages');
+            const doctorPlusBody = document.getElementById('doctorPlusBody');
+
+            // Toggle chat window
+            function toggleChat() {
+                doctorPlusChat.classList.toggle('active');
+                if (doctorPlusChat.classList.contains('active')) {
+                    doctorPlusInput.focus();
+                }
+            }
+
+            // Close chat window
+            function closeChatWindow() {
+                doctorPlusChat.classList.remove('active');
+            }
+
+            // Minimize chat window
+            function minimizeChatWindow() {
+                doctorPlusChat.classList.toggle('minimized');
+            }
+
+            // Auto-scroll to bottom of chat
+            function scrollToBottom() {
+                doctorPlusMessages.scrollTop = doctorPlusMessages.scrollHeight;
+            }
+
+            // Add user message to chat
+            function addUserMessage(message) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'user-message';
+                messageDiv.innerHTML = `
+                    <div class="message-content">
+                        <p>${message}</p>
+                        <small class="message-time">Just now</small>
+                    </div>
+                    <div class="message-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                `;
+                doctorPlusMessages.appendChild(messageDiv);
+                scrollToBottom();
+            }
+
+            // Add bot message to chat
+            function addBotMessage(message) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'bot-message';
+                messageDiv.innerHTML = `
+                    <div class="message-avatar">
+                        <i class="fas fa-user-md"></i>
+                    </div>
+                    <div class="message-content">
+                        <p class="streaming-text">${message}</p>
+                        <small class="message-time">Just now</small>
+                    </div>
+                `;
+                doctorPlusMessages.appendChild(messageDiv);
+                scrollToBottom();
+            }
+
+            // Event listeners
+            openDoctorPlus.addEventListener('click', toggleChat);
+            closeChat.addEventListener('click', closeChatWindow);
+            minimizeChat.addEventListener('click', minimizeChatWindow);
+
+            // Handle form submission
+            doctorPlusForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const query = doctorPlusInput.value.trim();
+                if (!query) return;
+
+                // Add user message to chat
+                addUserMessage(query);
+                
+                // Clear input and disable form
+                doctorPlusInput.value = '';
+                doctorPlusInput.disabled = true;
+                doctorPlusForm.querySelector('button').disabled = true;
+                
+                // Show loading
+                const loadingOverlay = document.getElementById('loadingOverlay');
+                loadingOverlay.classList.add('show');
+
+                try {
+                    const response = await fetch('/api/chatbot', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ query: query })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        // Add bot response to chat
+                        addBotMessage(data.response);
+                    } else {
+                        addBotMessage('Sorry, I encountered an error while processing your question. Please try again.');
+                        console.error('Doctor+ error:', data.error);
+                    }
+                } catch (error) {
+                    console.error('Network error:', error);
+                    addBotMessage('Sorry, I\'m having trouble connecting right now. Please check your internet connection and try again.');
+                } finally {
+                    // Hide loading and re-enable form
+                    loadingOverlay.classList.remove('show');
+                    doctorPlusInput.disabled = false;
+                    doctorPlusForm.querySelector('button').disabled = false;
+                    doctorPlusInput.focus();
+                }
+            });
+        });
+    </script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>
